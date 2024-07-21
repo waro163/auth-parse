@@ -1,7 +1,7 @@
 package authparse
 
 import (
-	"auth-parse/utils"
+	"github.com/waro163/auth-parse/utils"
 
 	"github.com/golang-jwt/jwt/v5"
 	ginmiddleware "github.com/waro163/gin-middleware"
