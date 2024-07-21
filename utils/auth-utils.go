@@ -67,17 +67,22 @@ func (p *JwtParse) getPublicSecret(token *jwt.Token) (interface{}, error) {
 	if err := json.NewDecoder(response.Body).Decode(&pubCerts); err != nil {
 		return nil, err
 	}
-	var currentPubCert string
 	for _, pubCert := range pubCerts {
-		if pubCert.Kid == kid {
-			currentPubCert = pubCert.Public
-			break
+		rsaPublicKey, err := convertPublicCert(pubCert.Public)
+		if err != nil {
+			continue
 		}
+		p.cache.Set(kid, rsaPublicKey, 0)
 	}
-	if currentPubCert == "" {
-		return nil, fmt.Errorf("not found kid %s in jwks", kid)
+	publicKey, err = p.cache.Get(kid)
+	if err == nil && publicKey != nil {
+		return publicKey, nil
 	}
-	rsaPublic, err := base64.StdEncoding.DecodeString(currentPubCert)
+	return nil, fmt.Errorf("not found kid %s in jwks", kid)
+}
+
+func convertPublicCert(cert string) (interface{}, error) {
+	rsaPublic, err := base64.StdEncoding.DecodeString(cert)
 	if err != nil {
 		return nil, err
 	}
@@ -86,6 +91,5 @@ func (p *JwtParse) getPublicSecret(token *jwt.Token) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	p.cache.Set(kid, rsaPublicKey, 0)
 	return rsaPublicKey, nil
 }
