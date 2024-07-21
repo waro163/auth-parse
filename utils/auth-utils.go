@@ -17,11 +17,11 @@ type IJwtParser interface {
 
 type JwtParse struct {
 	jwksUrl string
-	client  IReqeustClient
+	client  IRequestClient
 	cache   ICache
 }
 
-func NewJwtParse(jwksUrl string, client IReqeustClient, cache ICache) IJwtParser {
+func NewJwtParse(jwksUrl string, client IRequestClient, cache ICache) IJwtParser {
 	parse := &JwtParse{
 		jwksUrl: jwksUrl,
 		client:  client,
