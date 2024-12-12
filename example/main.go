@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/golang-jwt/jwt/v5"
 	parse "github.com/waro163/auth-parse"
 	"github.com/waro163/auth-parse/utils"
 
@@ -34,7 +35,23 @@ func main() {
 	}
 	r.GET("/auth", auth.ValidateAuth(), func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "pong",
+			"message": "auth",
+		})
+	})
+
+	commonAuth := gmw.AuthMiddleware{
+		GetToken: &gmw.JWTHeaderAuthToken,
+		Authenticator: &parse.CommonJwtAuthenticator{
+			Options: []jwt.ParserOption{
+				jwt.WithIssuedAt(),
+				jwt.WithExpirationRequired(),
+			},
+			JwtParse: utils.NewJwtParse("http://localhost:8080/api/v1/jwks/get", nil, nil),
+		},
+	}
+	r.GET("/common_auth", commonAuth.ValidateAuth(), func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "common auth",
 		})
 	})
 
