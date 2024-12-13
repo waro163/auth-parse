@@ -23,18 +23,11 @@ func (auth *CommonJwtAuthenticator) Authenticate(token string) (interface{}, *gm
 		}
 	}
 	claims := jwt.MapClaims{}
-	parseToken, err := auth.JwtParse.ParseJwtToken(token, &claims, auth.Options...)
+	_, err := auth.JwtParse.ParseJwtToken(token, &claims, auth.Options...)
 	if err != nil {
 		return nil, &gmw.Error{
 			Code:    -2,
 			Message: err.Error(),
-		}
-	}
-	claims, ok := parseToken.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, &gmw.Error{
-			Code:    -3,
-			Message: "invalid claims",
 		}
 	}
 	return claims, nil

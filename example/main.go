@@ -50,8 +50,24 @@ func main() {
 		},
 	}
 	r.GET("/common_auth", commonAuth.ValidateAuth(), func(c *gin.Context) {
+		claims, ok := c.Get(gmw.AuthPayload)
+		if !ok {
+			c.JSON(401, gin.H{
+				"message": "not found",
+			})
+			return
+		}
+		myClaims, ok := claims.(jwt.MapClaims)
+		if !ok {
+			c.JSON(500, gin.H{
+				"message": "some thing is wrong",
+			})
+			return
+		}
+		uid := myClaims["uid"]
 		c.JSON(200, gin.H{
 			"message": "common auth",
+			"uid":     uid,
 		})
 	})
 
