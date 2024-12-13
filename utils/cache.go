@@ -1,8 +1,13 @@
 package utils
 
 import (
+	"fmt"
 	"sync"
 	"time"
+)
+
+const (
+	EXPIRE_KEY = "%s:expire_at"
 )
 
 type ICache interface {
@@ -26,6 +31,11 @@ func (m *memoryCache) Set(key string, value interface{}, duration time.Duration)
 		m.data = make(map[string]interface{})
 	}
 	m.data[key] = value
+	if duration == 0 {
+		return nil
+	}
+	expireKey := fmt.Sprintf(EXPIRE_KEY, key)
+	m.data[expireKey] = time.Now().Add(duration).UnixMilli()
 	return nil
 }
 
@@ -37,7 +47,15 @@ func (m *memoryCache) Get(key string) (interface{}, error) {
 		return nil, nil
 	}
 	value, ok := m.data[key]
-	if ok {
+	if !ok {
+		return nil, nil
+	}
+	expireKey := fmt.Sprintf(EXPIRE_KEY, key)
+	expireTime, ok := m.data[expireKey].(int64)
+	if !ok {
+		return value, nil
+	}
+	if expireTime >= time.Now().UnixMilli() {
 		return value, nil
 	}
 	return nil, nil
