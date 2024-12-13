@@ -13,6 +13,7 @@ import (
 
 type IJwtParser interface {
 	ParseJwtToken(string, jwt.Claims, ...jwt.ParserOption) (*jwt.Token, error)
+	GetPublicSecret(*jwt.Token) (interface{}, error)
 }
 
 type JwtParse struct {
@@ -37,11 +38,11 @@ func NewJwtParse(jwksUrl string, client IRequestClient, cache ICache) IJwtParser
 }
 
 func (p *JwtParse) ParseJwtToken(token string, claims jwt.Claims, options ...jwt.ParserOption) (*jwt.Token, error) {
-	parseToken, err := jwt.ParseWithClaims(token, claims, p.getPublicSecret, options...)
+	parseToken, err := jwt.ParseWithClaims(token, claims, p.GetPublicSecret, options...)
 	return parseToken, err
 }
 
-func (p *JwtParse) getPublicSecret(token *jwt.Token) (interface{}, error) {
+func (p *JwtParse) GetPublicSecret(token *jwt.Token) (interface{}, error) {
 	if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 		return nil, fmt.Errorf("unexpected signed method: %s", token.Header["alg"])
 	}
