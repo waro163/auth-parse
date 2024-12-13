@@ -73,7 +73,7 @@ func (p *JwtParse) GetPublicSecret(token *jwt.Token) (interface{}, error) {
 		if err != nil {
 			continue
 		}
-		p.cache.Set(kid, rsaPublicKey, 0)
+		p.cache.Set(pubCert.Kid, rsaPublicKey, 0)
 	}
 	publicKey, err = p.cache.Get(kid)
 	if err == nil && publicKey != nil {
