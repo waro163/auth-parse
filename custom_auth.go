@@ -11,6 +11,10 @@ const (
 	REFRESH_TOKEN_SUBJECT = "refresh_token"
 )
 
+var (
+	_ gmw.IAuthenticator = (*CustomJwtAuthenticator)(nil)
+)
+
 type CustomJwtAuthenticator struct {
 	Audience string
 	Issuer   string
